@@ -1,0 +1,4 @@
+<apex:page >
+    <h2>   You: Thank you Generator, that was helpful. </h2><br/><br/><br/>
+    <h2> TEGen: No need to thank me... it's what I do.</h2><br/>
+</apex:page>

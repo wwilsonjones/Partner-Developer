@@ -1,0 +1,46 @@
+<apex:page controller="PriceisRight">
+   	 
+   	
+   	
+   	
+	<apex:form >
+    <apex:pageBlock title="Price is Right!">
+        <apex:pageBlockTable value="{!priceright}" var="item">
+            <apex:column value="{!item.prod.name}"/>
+            <apex:column headerValue="Per Unit Avg Price">
+            	<apex:selectList value="{!item.price}" multiselect="false" size="1">
+   	 	 			<apex:selectOptions value="{!Items}"/> 
+   	 			</apex:selectList>
+   	 		</apex:column>
+   	 		<apex:column headerValue="Pick # of Items In A Deal" >
+   	 		
+  	 			<apex:selectList value="{!item.Quantity}" multiselect="false"size="1">
+   	 	 	 		<apex:selectOptions value="{!Quant}"/>
+   	 			</apex:selectList>
+   	 		</apex:column>
+           
+        </apex:pageBlockTable> 
+    </apex:pageBlock>
+    <apex:commandButton value="Price" action="{!ComeOnDown}" rerender="out" status="status"/>
+   	 	
+   	 	   	</apex:form>  
+   
+   
+      <apex:outputPanel id="out">
+ 	 	<apex:actionstatus id="status" startText="In Progress...">
+ 	 	 	<apex:facet name="stop">
+ 	 	 	 	<apex:outputPanel > <br/><br/><br/>
+ 	 	 	 	 	<apex:outputText value="{!done}" ></apex:outputText>
+ 	 	 	 	</apex:outputPanel>
+ 	 	 	</apex:facet>
+ 	 	</apex:actionstatus>
+ 	</apex:outputPanel>
+
+   	
+
+   	
+   	
+   	
+   	
+   	
+  </apex:page>

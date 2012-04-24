@@ -1,0 +1,171 @@
+<apex:page controller="chatterAssassin2" standardStyleSheets="true" sidebar="false" showheader="false">
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/elements.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/common.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/dashboard.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/ChatterFiles.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/chatterCore.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/Recommend.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/OnboardingSplash.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1318399523000/Theme3/gc/dStandard.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<link href="/sCSS/23.0/sprites/1317831957000/Theme3/default/gc/extended.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/jslibrary/1315964808000/JiffyStubs.js"></script>
+<script type="text/javascript" src="/support/cti/sfcti.js"></script>
+<script src="/EXT/ext-3.0.0/ext-core.js" type="text/javascript"></script>
+<script src="/jslibrary/1317831957000/main.js" type="text/javascript"></script>
+<script src="/jslibrary/1315964808000/Activity.js" type="text/javascript"></script>
+<script src="/jslibrary/1318399511000/Chatter.js" type="text/javascript"></script>
+<script src="/jslibrary/1315964808000/HomeCalendar.js" type="text/javascript"></script>
+<script src="/jslibrary/1315964808000/Scheduling.js" type="text/javascript"></script>
+<script src="/jslibrary/labels/1318434816000/en_US.js" type="text/javascript"></script>
+<script src="/static/121310/js/ClientHash.js" type="text/javascript"></script>
+<!-- 
+
+    Ok so how is this page gonna work...
+    
+    At load, get the news feed of the user. List out below in basically a shitton of divs with the stolen styles from Chatter.
+    Add delete buttons, provide the ability to delete as necessary. 
+    Sit back, yell 'AWWWWW YEEEEEAAAAHHH' 
+    
+    
+    v2: Select object, then record's feeds.
+
+ -->
+
+<apex:sectionHeader title="Chatter" subtitle="Assassin"/>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+    var j$ = jQuery.noConflict();
+    var baseline = 'https://na1.salesforce.com/apex/restCaller?action=';
+    var action = 'chatter/feeds/news/me/feed-items';
+     
+    j$(document).ready(function(){
+        getNewsFeed();
+    });
+
+    function getNewsFeed(){
+        action = 'chatter/feeds/news/me/feed-items';
+        j$.getJSON(baseline+action, function(response){
+            j$('#results').html('');
+            j$.each(response.items, function(key, item){
+                var feedItem = '';
+                feedItem += '<div class="cxfeeditem feeditem">';
+            
+                feedItem += '<span class="feeddata cxfeeditemid" style="display:none;">'+item.id+'</span>';
+                feedItem += '<span class="cxfeeditemparentid feeddata" style="display:none;">'+item.parent.id+'</span>';
+                feedItem += '<span class="cxfeeditemparentname feeddata" style="display:none;">'+item.parent.name+'</span>';
+                
+                if(item.type != 'TrackedChange'){ //user post
+                    feedItem += '<span>';
+                    feedItem +=     '<a href="/' + item.actor.id + '">';
+                    feedItem +=         '<img src="' + item.actor.photo.smallPhotoUrl + '" alt="' + item.actor.name + '" width="45" height="45" class="feeditemusericon hov-enable hov-id' + item.actor.id + '" title="' + item.actor.name + '"/>';
+                    feedItem +=     '</a>';
+                    feedItem += '</span>';
+                }
+                else{ //non user post
+                    feedItem += '<span class="dashboardMru">';
+                    feedItem +=     '<a href="/' + item.actor.id + '">';
+                    feedItem +=         '<img src="/img/feeds/feed16.png" alt="Alert" class="feeditemusericon" title="Alert"/>';
+                    feedItem +=     '</a>';
+                    feedItem += '</span>';
+                }
+                
+                feedItem += '<div class="feeditemcontent cxfeeditemcontent">';
+                feedItem += '<div class="feeditembody">';
+                feedItem +=     '<div>';
+            
+                if(item.parent.id != item.actor.id || item.parent.type != 'User'){ //needs work lol
+                    
+                    var parentType = item.parent.type.toLowerCase();
+                    if (parentType == 'dashboardcomponent') parentType = 'dashboard';
+                    
+                    feedItem += '<span class="' + parentType + 'Mru">';
+                    feedItem +=     '<a href="/' + item.parent.id + '" title="' + item.parent.type + '"/>';
+                    feedItem +=         '<img src="/s.gif" alt = "' + item.parent.type + '" + class="mruIcon" title="' + item.parent.type + '"/>';
+                    feedItem +=     '</a>';
+                    feedItem += '</span>';
+                    feedItem += '<a href="/' + item.parent.id + '" class="feeditemfirstentity">' + item.parent.name + '</a>';
+                    feedItem += ' - ';
+                }
+            
+             
+                feedItem +=         '<span class="feeditemsecondentity" style="margin-right:5px;">';
+                feedItem +=             '<a href="/'+item.actor.id+'" class="actorentitylink">'+item.actor.name+'</a>';
+                feedItem +=         '</span>';
+                feedItem +=         '<span class="feeditemtext cxfeeditemtext">'+item.body.text+'</span>';
+                feedItem +=     '</div>';
+                feedItem += '</div>';
+                
+                feedItem += '<div class="feeditemfooter">';
+                feedItem +=     '<span class="cxallfeedactions">';
+                feedItem +=         '<a href="javascript:void(0);" class="feedDeleteLink cxdeleteitemaction feeditemactionlink" onclick="killPost(\'' + item.id + '\');">Delete</a>';
+                feedItem +=     '</span>';
+                feedItem += '</div>';
+                
+                feedItem += '<div class="feeditemextras">';
+                feedItem +=     '<div class="cxcomments feeditemcomments">';
+                
+                j$.each(item.comments.comments, function(i, comment){
+                    feedItem += '<div class="feeditemcomment cxfeedcomment" style="display:block;">';
+                    feedItem +=     '<a href="/' + comment.user.id + '" class="feeditemcommentphoto hoverEnabled hoverId' + comment.user.id + '">';
+                    feedItem +=         '<img src="' + comment.user.photo.smallPhotoUrl + '" title="' + comment.user.name + '" alt="' + comment.user.name + '" class="hov-enable hov-id' + comment.user.id + '"/>';
+                    feedItem +=     '</a>';
+                    feedItem +=     '<span class="feedcommentbody">';
+                    feedItem +=         '<span class="feedcommentuser" style="margin-right:5px;">';
+                    feedItem +=             '<a href="/' + comment.user.id + '" class="actorentitylink hov-enable hov-id' + comment.user.id + '">'+comment.user.name+'</a>';
+                                        
+                    feedItem +=         '</span>';
+                    feedItem +=         '<span class="feedcommenttext">'+comment.body.text+'</span>';
+                    //feedItem +=           '<span class="feedcommentfooter">'+comment.createdDate+'</span>';
+                    feedItem +=         '<span class="feedcommentfooter">';
+                    feedItem +=             '<a href="javascript:void(0);" title="Delete this comment" class="feeditemactionlink commentDeleteLink" onclick="killComment( \'' + comment.id + '\');">Delete</a>';
+                    feedItem +=     '</span>';
+                    feedItem += '</div>'; 
+                });
+                
+                feedItem +=     '</div>';               
+                feedItem += '</div>';
+                
+                feedItem += '</div>';
+                feedItem += '</div>';
+                
+                
+                
+                
+                j$('#results').append(feedItem);
+            });
+        });
+        
+        
+                    
+    }
+ 
+ 
+    function killComment(pID)
+    {
+        j$('[id*="postID"]').val(pID);
+        deleteComment();
+        j$('[id*="postID"]').val('');
+    }
+    function killPost(pID)
+    {
+        j$('[id*="postID"]').val(pID);
+        deletePost();
+        j$('[id*="postID"]').val('');
+    }
+    
+</script>
+<div class="feedmain">
+<div id="newfeed">
+<div id="results" class="feedcontainer actionsOnHoverEnabled cxfeedcontainer">
+</div>
+</div>
+</div>
+<apex:form >
+    
+    <apex:inputHidden value="{!postID}" id="postID"/>
+    <apex:actionFunction name="deleteComment" action="{!delComment}"/>
+    <apex:actionFunction name="deletePost" action="{!delPost}"/>
+</apex:form>
+</apex:page>
